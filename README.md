@@ -1,77 +1,127 @@
-# 🛡️ WiFi Guard
+# WiFi Guard
 
-[![Release](https://img.shields.io/github/v/release/markjasonesguerra/wifi-guard)](https://github.com/markjasonesguerra/wifi-guard/releases)
+[![Android](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
+[![API](https://img.shields.io/badge/min%20SDK-24-blue)](app/build.gradle.kts)
+[![Target SDK](https://img.shields.io/badge/target%20SDK-36-blue)](app/build.gradle.kts)
+[![License](https://img.shields.io/github/license/markjasonesguerra/wifi-guard)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/markjasonesguerra/wifi-guard?style=social)](https://github.com/markjasonesguerra/wifi-guard/stargazers)
-[![License](https://img.shields.io/github/license/markjasonesguerra/wifi-guard)](https://github.com/markjasonesguerra/wifi-guard/blob/main/LICENSE)
+[![Forks](https://img.shields.io/github/forks/markjasonesguerra/wifi-guard?style=social)](https://github.com/markjasonesguerra/wifi-guard/network/members)
 [![Issues](https://img.shields.io/github/issues/markjasonesguerra/wifi-guard)](https://github.com/markjasonesguerra/wifi-guard/issues)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/markjasonesguerra/wifi-guard/ci.yml?branch=main)](https://github.com/markjasonesguerra/wifi-guard/actions)
 
-WiFi Guard is a lightweight Android utility that monitors Wi‑Fi and real internet connectivity. It detects "connected but no internet" situations, logs state changes, and notifies you when the connection drops.
+WiFi Guard is a lightweight Android app for monitoring Wi-Fi connectivity and real internet availability. It distinguishes between a disconnected Wi-Fi network, a connected Wi-Fi network with no internet, and a healthy connection, then records state changes in a local log.
 
----
+## Features
 
-## ✨ Key Features
+- Wi-Fi state detection using Android network capabilities.
+- Internet reachability checks using Google's `generate_204` endpoint with a socket fallback to Cloudflare DNS.
+- Foreground monitoring service that keeps checking in the background.
+- State-change logging to local app storage.
+- Connection log screen with grouped history and clear-log support.
+- Visual status states for connected, no internet, and disconnected conditions.
+- Runtime notification permission handling for Android 13 and newer.
 
-- Active internet monitoring (detects ISP/DNS/captive-portal issues)
-- Background service with low battery impact
-- Instant notifications on connectivity loss
-- Smart logging of state changes only
-- Uptime / downtime tracking per session
+## Screens
 
----
+- Main status screen with animated radar-style connection indicator.
+- Logs screen with dated connection history.
 
-## 🚀 Quick Start
+Add screenshots under a `screenshots/` directory and link them here when you have app captures ready.
 
-### Clone
+## Tech Stack
+
+- Kotlin
+- Android Gradle Plugin
+- AndroidX AppCompat, Core KTX, Activity, ConstraintLayout
+- Material Components
+- Kotlin coroutines
+
+## Requirements
+
+- Android Studio with JDK 11 or newer.
+- Android SDK for compile SDK 36.
+- Android device or emulator running Android 7.0/API 24 or newer.
+
+## Getting Started
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/markjasonesguerra/wifi-guard.git
 cd wifi-guard
 ```
 
-### Open in Android Studio
+Open the project in Android Studio, let Gradle sync, then run the `app` configuration on a device or emulator.
 
-- Open the project folder in Android Studio and let Gradle sync.
-- Run on a device or emulator (Debug configuration).
+## Build
 
-### Build from command line
+On Windows:
+
+```powershell
+.\gradlew.bat assembleDebug
+```
+
+On macOS or Linux:
 
 ```bash
 ./gradlew assembleDebug
 ```
 
----
+The debug APK is generated under:
 
-## 🛠️ Development
+```text
+app/build/outputs/apk/debug/
+```
 
-- Project uses Gradle (Kotlin DSL). App module is in `app/`.
-- Run unit tests with `./gradlew test` and instrumentation tests with `./gradlew connectedAndroidTest`.
+## Test
 
----
+Run local unit tests:
 
-## 📸 Screenshots
+```bash
+./gradlew test
+```
 
-_(Add screenshots here: a screenshot/ folder and image links make the README more approachable.)_
+Run Android instrumentation tests with a connected device or emulator:
 
----
+```bash
+./gradlew connectedAndroidTest
+```
 
-## 🤝 Contributing
+## How It Works
 
-- Found a bug or have a feature idea? Please open an issue.
-- Pull requests welcome — follow standard Gradle/Android style and include a brief description of changes.
+`NetworkMonitorService` runs as a foreground service and checks the current active network. When Wi-Fi is active, it verifies internet access through a short HTTP 204 request and a socket fallback. The service broadcasts state changes to `MainActivity` and stores entries through `LogStore`.
 
----
+The app records only changes in connection state, so the log stays focused on meaningful events instead of repeating the same status every check.
 
-## 📦 License
+## Permissions
 
-This project is licensed under the terms in the `LICENSE` file.
+WiFi Guard uses these Android permissions:
 
----
+- `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE` for connection state detection.
+- `INTERNET` for reachability checks.
+- `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, and `FOREGROUND_SERVICE_CONNECTED_DEVICE` for background monitoring.
+- `POST_NOTIFICATIONS` for Android 13+ foreground service notifications.
+- `VIBRATE` is currently declared in the manifest.
 
-## ⚠️ Notes for maintainers
+## Project Structure
 
-- Badges above are wired to `markjasonesguerra/wifi-guard` (used the repository remote URL found in the repo). If you want different badge targets (e.g., a GitHub organization or different branch), tell me and I'll adjust them.
+```text
+app/src/main/java/com/example/wifiguard/
+  MainActivity.kt              Main status UI and permission flow
+  NetworkMonitorService.kt     Foreground connectivity monitor
+  LogStore.kt                  Local connection log persistence
+  LogsActivity.kt              Connection history UI
 
----
+app/src/main/res/
+  layout/                      Main and logs screen layouts
+  drawable/                    Status backgrounds and icons
+  anim/                        Radar pulse animations
+```
 
-If you'd like, I can also add a feature table, badges for downloads, or a nicer hero image — what would you like included next?
+## Contributing
+
+Issues and pull requests are welcome. For code changes, keep the scope focused, describe the behavior change, and include tests when the change affects app logic.
+
+## License
+
+This project is licensed under the terms in [LICENSE](LICENSE).
